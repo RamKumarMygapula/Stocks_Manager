@@ -1,74 +1,100 @@
-import pandas as pd
-import numpy as np
-import yfinance as yf
-import pandas_ta as ta
-from tqdm import tqdm
 import os
+import warnings
 
-# -------------------------------
-# Configuration
-# -------------------------------
+import numpy as np
+import pandas as pd
+import yfinance as yf
+from tqdm import tqdm
+
+from ta.momentum import RSIIndicator
+from ta.trend import MACD, EMAIndicator, SMAIndicator
+
+warnings.filterwarnings("ignore")
+
+# -------------------------------------------------------
+# CONFIGURATION
+# -------------------------------------------------------
 
 START_DATE = "2022-01-01"
 END_DATE = "2023-12-31"
 
 INPUT_FILE = "../input/stocks.csv"
-
 OUTPUT_FILE = "../output/monthly_price_features.csv"
 
 os.makedirs("../output", exist_ok=True)
 
-# -------------------------------
-# Read Stock List
-# -------------------------------
+# -------------------------------------------------------
+# READ STOCKS
+# -------------------------------------------------------
 
 stocks = pd.read_csv(INPUT_FILE)
-
-symbols = stocks["Symbol"].tolist()
+symbols = stocks["Symbol"].dropna().tolist()
 
 all_data = []
 
-# -------------------------------
-# Loop through Stocks
-# -------------------------------
+# -------------------------------------------------------
+# DOWNLOAD DATA
+# -------------------------------------------------------
 
 for symbol in tqdm(symbols):
 
-    try:
+    print(f"\nDownloading {symbol}")
 
-        print(f"\nDownloading {symbol}")
+    try:
 
         df = yf.download(
             symbol,
             start=START_DATE,
             end=END_DATE,
             interval="1d",
+            auto_adjust=False,
             progress=False,
-            auto_adjust=False
+            group_by="column"
         )
 
         if df.empty:
+            print("No data")
             continue
 
-        # ---------------------------
-        # Technical Indicators
-        # ---------------------------
+        # ----------------------------------------
+        # FIX NEW YFINANCE MULTIINDEX
+        # ----------------------------------------
 
-        df["RSI"] = ta.rsi(df["Close"], length=14)
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
 
-        macd = ta.macd(df["Close"])
+        # keep only required columns
 
-        df["MACD"] = macd["MACD_12_26_9"]
+        cols = ["Open", "High", "Low", "Close", "Volume"]
 
-        df["SMA50"] = ta.sma(df["Close"], length=50)
+        df = df[cols].copy()
 
-        df["EMA20"] = ta.ema(df["Close"], length=20)
+        # convert every column to Series
 
-        # Daily Returns
+        for c in cols:
+            df[c] = pd.to_numeric(df[c], errors="coerce")
 
-        df["Daily_Return"] = df["Close"].pct_change()
+        close = df["Close"]
 
-        # Monthly Volatility (21 trading days)
+        # ----------------------------------------
+        # TECHNICAL INDICATORS
+        # ----------------------------------------
+
+        df["RSI"] = RSIIndicator(close=close, window=14).rsi()
+
+        macd = MACD(close=close)
+
+        df["MACD"] = macd.macd()
+
+        df["SMA50"] = SMAIndicator(close=close, window=50).sma_indicator()
+
+        df["EMA20"] = EMAIndicator(close=close, window=20).ema_indicator()
+
+        # ----------------------------------------
+        # RETURNS
+        # ----------------------------------------
+
+        df["Daily_Return"] = close.pct_change()
 
         df["Volatility"] = (
             df["Daily_Return"]
@@ -77,54 +103,45 @@ for symbol in tqdm(symbols):
             * np.sqrt(21)
         )
 
-        # Rolling 52-week High/Low
+        # ----------------------------------------
+        # 52 WEEK HIGH LOW
+        # ----------------------------------------
 
-        df["52W_High"] = (
-            df["High"]
-            .rolling(252)
-            .max()
-        )
+        df["52W_High"] = df["High"].rolling(252).max()
 
-        df["52W_Low"] = (
-            df["Low"]
-            .rolling(252)
-            .min()
-        )
+        df["52W_Low"] = df["Low"].rolling(252).min()
 
-        # ---------------------------
-        # Convert to Monthly
-        # ---------------------------
+        # ----------------------------------------
+        # MONTHLY AGGREGATION
+        # ----------------------------------------
 
         monthly = pd.DataFrame()
 
-        monthly["Open"] = df["Open"].resample("M").first()
+        monthly["Open"] = df["Open"].resample("ME").first()
 
-        monthly["High"] = df["High"].resample("M").max()
+        monthly["High"] = df["High"].resample("ME").max()
 
-        monthly["Low"] = df["Low"].resample("M").min()
+        monthly["Low"] = df["Low"].resample("ME").min()
 
-        monthly["Close"] = df["Close"].resample("M").last()
+        monthly["Close"] = df["Close"].resample("ME").last()
 
-        monthly["Volume"] = df["Volume"].resample("M").sum()
+        monthly["Volume"] = df["Volume"].resample("ME").sum()
 
-        monthly["RSI"] = df["RSI"].resample("M").last()
+        monthly["RSI"] = df["RSI"].resample("ME").last()
 
-        monthly["MACD"] = df["MACD"].resample("M").last()
+        monthly["MACD"] = df["MACD"].resample("ME").last()
 
-        monthly["SMA50"] = df["SMA50"].resample("M").last()
+        monthly["SMA50"] = df["SMA50"].resample("ME").last()
 
-        monthly["EMA20"] = df["EMA20"].resample("M").last()
+        monthly["EMA20"] = df["EMA20"].resample("ME").last()
 
-        monthly["Volatility"] = df["Volatility"].resample("M").last()
+        monthly["Volatility"] = df["Volatility"].resample("ME").last()
 
-        monthly["52W_High"] = df["52W_High"].resample("M").last()
+        monthly["52W_High"] = df["52W_High"].resample("ME").last()
 
-        monthly["52W_Low"] = df["52W_Low"].resample("M").last()
+        monthly["52W_Low"] = df["52W_Low"].resample("ME").last()
 
-        monthly["Returns"] = (
-            monthly["Close"]
-            .pct_change()
-        )
+        monthly["Returns"] = monthly["Close"].pct_change()
 
         monthly.reset_index(inplace=True)
 
@@ -132,19 +149,23 @@ for symbol in tqdm(symbols):
 
         all_data.append(monthly)
 
+        print("Done")
+
     except Exception as e:
 
-        print(symbol, e)
+        print(symbol)
 
-# -------------------------------
-# Merge All Stocks
-# -------------------------------
+        print(e)
+
+# -------------------------------------------------------
+# SAVE
+# -------------------------------------------------------
+
+if len(all_data) == 0:
+    print("No data downloaded.")
+    exit()
 
 final_df = pd.concat(all_data, ignore_index=True)
-
-# -------------------------------
-# Reorder Columns
-# -------------------------------
 
 final_df = final_df[
     [
@@ -166,14 +187,10 @@ final_df = final_df[
     ]
 ]
 
-# -------------------------------
-# Save
-# -------------------------------
-
 final_df.to_csv(OUTPUT_FILE, index=False)
 
-print("\nDone")
-
+print("\n----------------------------------")
 print(final_df.head())
+print("----------------------------------")
 
 print(f"\nSaved to {OUTPUT_FILE}")
