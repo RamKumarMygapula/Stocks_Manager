@@ -1,15 +1,10 @@
 import {
-
     useMutation,
-
     useQueryClient
-
 } from "@tanstack/react-query";
 
 import {
-
     deletePortfolioStock
-
 } from "../services/portfolioService";
 
 export function useDeleteStock() {
@@ -18,26 +13,21 @@ export function useDeleteStock() {
 
     return useMutation({
 
-        mutationFn: deletePortfolioStock,
+        mutationFn: (id: number) =>
+            deletePortfolioStock(id),
 
         onSuccess: () => {
 
             queryClient.invalidateQueries({
-
                 queryKey: ["portfolio"]
-
             });
 
             queryClient.invalidateQueries({
-
-                queryKey: ["dashboard-summary"]
-
-            });
-
-            queryClient.invalidateQueries({
-
                 queryKey: ["dashboard"]
+            });
 
+            queryClient.invalidateQueries({
+                queryKey: ["dashboard-summary"]
             });
 
         }
