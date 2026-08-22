@@ -1,0 +1,44 @@
+{
+    "portfolio": [
+        {
+            "id": 1,
+            "symbol": "RELIANCE.NS",
+            "buy_date": "2023-05-12",
+            "buy_price": 2450.5,
+            "quantity": 15,
+            "notes": ""
+        },
+        {
+            "id": 2,
+            "symbol": "TCS.NS",
+            "buy_date": "2022-11-20",
+            "buy_price": 3325.75,
+            "quantity": 8,
+            "notes": ""
+        },
+        {
+            "id": 3,
+            "symbol": "INFY.NS",
+            "buy_date": "2024-01-18",
+            "buy_price": 1615.2,
+            "quantity": 19,
+            "notes": ""
+        },
+        {
+            "id": 4,
+            "symbol": "bhel.ns",
+            "buy_date": "2025-06-10",
+            "buy_price": 111.0,
+            "quantity": 1,
+            "notes": ""
+        },
+        {
+            "id": 5,
+            "symbol": "SUZLON.NS",
+            "buy_date": "2025-06-11",
+            "buy_price": 11111.0,
+            "quantity": 11,
+            "notes": ""
+        }
+    ]
+}
