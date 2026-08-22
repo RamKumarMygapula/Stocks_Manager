@@ -1,43 +1,59 @@
 {
     "portfolio": [
         {
-            "id": 1,
-            "symbol": "RELIANCE.NS",
-            "buy_date": "2023-05-12",
-            "buy_price": 2450.5,
-            "quantity": 15,
+            "id": 6,
+            "symbol": "MOTISONS.NS",
+            "buy_date": "2026-06-16",
+            "buy_price": 14.38,
+            "quantity": 253,
             "notes": ""
         },
         {
-            "id": 2,
-            "symbol": "TCS.NS",
-            "buy_date": "2022-11-20",
-            "buy_price": 3325.75,
-            "quantity": 8,
+            "id": 7,
+            "symbol": "HFCL.NS",
+            "buy_date": "2025-01-20",
+            "buy_price": 96.35,
+            "quantity": 100,
             "notes": ""
         },
         {
-            "id": 3,
-            "symbol": "INFY.NS",
-            "buy_date": "2024-01-18",
-            "buy_price": 1615.2,
-            "quantity": 19,
+            "id": 8,
+            "symbol": "CEWATER.NS",
+            "buy_date": "2025-01-20",
+            "buy_price": 379.71,
+            "quantity": 46,
             "notes": ""
         },
         {
-            "id": 4,
-            "symbol": "bhel.ns",
-            "buy_date": "2025-06-10",
-            "buy_price": 111.0,
-            "quantity": 1,
-            "notes": ""
-        },
-        {
-            "id": 5,
+            "id": 9,
             "symbol": "SUZLON.NS",
-            "buy_date": "2025-06-11",
-            "buy_price": 11111.0,
-            "quantity": 11,
+            "buy_date": "2026-01-09",
+            "buy_price": 47.17,
+            "quantity": 240,
+            "notes": ""
+        },
+        {
+            "id": 10,
+            "symbol": "BHEL.NS",
+            "buy_date": "2026-01-09",
+            "buy_price": 277.14,
+            "quantity": 24,
+            "notes": ""
+        },
+        {
+            "id": 11,
+            "symbol": "HBLENGINE.NS",
+            "buy_date": "2026-05-06",
+            "buy_price": 842.15,
+            "quantity": 10,
+            "notes": ""
+        },
+        {
+            "id": 12,
+            "symbol": "WOCKPHARMA.NS",
+            "buy_date": "2025-01-07",
+            "buy_price": 1477.2,
+            "quantity": 2,
             "notes": ""
         }
     ]

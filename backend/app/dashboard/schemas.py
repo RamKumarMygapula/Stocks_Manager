@@ -64,7 +64,7 @@ class UpdatePortfolio(BaseModel):
     """
     Model used while updating an existing holding.
     """
-
+    symbol: Optional[str] = None
     buy_date: Optional[date] = None
     buy_price: Optional[float] = None
     quantity: Optional[int] = None

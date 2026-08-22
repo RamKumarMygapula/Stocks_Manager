@@ -16,6 +16,7 @@ Responsibilities:
 from collections import defaultdict
 from datetime import date
 from typing import List
+import math
 
 # ==========================================================
 # Local Imports
@@ -39,6 +40,31 @@ class DashboardService:
     """
 
     @staticmethod
+    def _safe_float(value, default=None):
+        """
+        Convert a value to a JSON-safe float.
+
+        Returns default when the value is:
+        - None
+        - NaN
+        - +Infinity
+        - -Infinity
+        """
+
+        if value is None:
+            return default
+
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            return default
+
+        if not math.isfinite(value):
+            return default
+
+        return value
+
+    @staticmethod
     def _create_dashboard_stock(
         portfolio: Portfolio,
         market: LiveStockData
@@ -46,74 +72,146 @@ class DashboardService:
         """
         Create one dashboard row by combining
         portfolio + live market data.
+
+        All numeric market values are normalized so
+        NaN / Infinity values cannot reach the JSON response.
         """
+
+        # ----------------------------------------------------------
+        # Safe live market values
+        # ----------------------------------------------------------
+
+        current_price = DashboardService._safe_float(
+            market.current_price,
+            0
+        )
+
+        previous_close = DashboardService._safe_float(
+            market.previous_close,
+            0
+        )
+
+        market_cap = DashboardService._safe_float(
+            market.market_cap
+        )
+
+        book_value = DashboardService._safe_float(
+            market.book_value
+        )
+
+        # ----------------------------------------------------------
+        # Calculations
+        # ----------------------------------------------------------
 
         invested_amount = (
             portfolio.buy_price *
             portfolio.quantity
         )
+
         current_value = (
-            market.current_price *
+            current_price *
             portfolio.quantity
         )
+
         profit_loss = (
             current_value -
             invested_amount
         )
+
         one_day_profit = (
             (
-                market.current_price -
-                market.previous_close
+                current_price -
+                previous_close
             )
             *
             portfolio.quantity
         )
+
         if invested_amount > 0:
+
             return_percent = (
                 profit_loss /
                 invested_amount
             ) * 100
+
         else:
+
             return_percent = 0
+
         days_invested = (
             date.today() -
             portfolio.buy_date
         ).days
+
+        # ----------------------------------------------------------
+        # Final Dashboard Row
+        # ----------------------------------------------------------
+
         return DashboardStock(
+
             id=portfolio.id,
+
             symbol=portfolio.symbol,
+
             buy_date=portfolio.buy_date,
+
             buy_price=portfolio.buy_price,
+
             quantity=portfolio.quantity,
+
             invested_amount=round(
                 invested_amount,
                 2
             ),
+
             current_value=round(
                 current_value,
                 2
             ),
+
             profit_loss=round(
                 profit_loss,
                 2
             ),
+
             one_day_profit=round(
                 one_day_profit,
                 2
             ),
+
             return_percent=round(
                 return_percent,
                 2
             ),
-            days_invested=days_invested,
-            current_price=round(market.current_price,2),
-            previous_close=round(market.previous_close,2),
-            market_cap=market.market_cap,
-            sector=market.sector,
-            company_name=market.company_name,
-            book_value=(round(market.book_value, 2) if market.book_value is not None else None)
-        )
 
+            days_invested=days_invested,
+
+            current_price=round(
+                current_price,
+                2
+            ),
+
+            previous_close=round(
+                previous_close,
+                2
+            ),
+
+            market_cap=market_cap,
+
+            sector=(
+                market.sector
+                if market.sector
+                else "Unknown"
+            ),
+
+            company_name=(
+                market.company_name
+                if market.company_name
+                else portfolio.symbol
+            ),
+
+            book_value=book_value
+        )
     @staticmethod
     def _calculate_summary(
         dashboard_rows: List[DashboardStock]
@@ -175,38 +273,92 @@ class DashboardService:
     def _calculate_sector_distribution(
         dashboard_rows: List[DashboardStock]
     ) -> List[SectorAllocation]:
-
         """
-        Create rich sector distribution.
+        Create sector allocation data.
+
+        Groups portfolio holdings by sector and calculates:
+
+        - Total invested amount
+        - Number of holdings
+        - Company names in each sector
         """
 
         sectors = defaultdict(
             lambda: {
-                "investment": 0,
+                "invested_amount": 0.0,
                 "companies": []
             }
         )
+
         for row in dashboard_rows:
-            sector = row.sector or "Unknown"
-            sectors[sector]["investment"] += row.invested_amount
-            sectors[sector]["companies"].append(
-                row.company_name
+
+            # ------------------------------------------------------
+            # Safe Sector
+            # ------------------------------------------------------
+
+            sector = (
+                row.sector.strip()
+                if isinstance(row.sector, str)
+                and row.sector.strip()
+                else "Unknown"
             )
+
+            # ------------------------------------------------------
+            # Invested Amount
+            # ------------------------------------------------------
+
+            sectors[sector]["invested_amount"] += (
+                row.invested_amount
+            )
+
+            # ------------------------------------------------------
+            # Safe Company Name
+            # ------------------------------------------------------
+
+            company_name = (
+                row.company_name.strip()
+                if isinstance(row.company_name, str)
+                and row.company_name.strip()
+                else row.symbol
+            )
+
+            if company_name:
+                sectors[sector]["companies"].append(
+                    company_name
+                )
+
+        # ----------------------------------------------------------
+        # Build SectorAllocation objects
+        # ----------------------------------------------------------
+
         result = []
-        for sector, info in sectors.items():
+
+        for sector, data in sectors.items():
+
+            # Remove duplicate company names
+            companies = list(
+                dict.fromkeys(
+                    company
+                    for company in data["companies"]
+                    if company
+                )
+            )
+
             result.append(
                 SectorAllocation(
                     sector=sector,
+
                     invested_amount=round(
-                        info["investment"],
+                        data["invested_amount"],
                         2
                     ),
-                    holdings=len(
-                        info["companies"]
-                    ),
-                    companies=info["companies"]
+
+                    holdings=len(companies),
+
+                    companies=companies
                 )
             )
+
         return result
 
 

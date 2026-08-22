@@ -13,6 +13,7 @@ import PortfolioInsights from "../components/cards/PortfolioInsights";
 import SectorPieChart from "../components/charts/SectorPieChart";
 import StockDetailsDrawer from "../components/drawer/StockDetailsDrawer";
 import AddStockDialog from "../components/dialogs/AddStockDialog";
+import { useDeleteStock } from "../hooks/useDeleteStock";
 import {
 
     IconButton
@@ -83,12 +84,20 @@ export default function DashboardPage() {
     // ==========================================================
     // Delete Stock
     // ==========================================================
-
+    const deleteMutation = useDeleteStock();
     const handleDeleteStock = (
         stock: DashboardStock
     ) => {
 
-        console.log("Delete", stock);
+        const confirmed = window.confirm(
+            `Are you sure you want to delete ${stock.company_name}?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        deleteMutation.mutate(stock.id);
 
     };
 
