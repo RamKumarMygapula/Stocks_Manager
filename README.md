@@ -12,7 +12,7 @@ The Dashboard currently supports:
 - Add Stock
 - Edit Stock
 - Delete Stock
-- View Stock details
+- View Stock details    
 - Portfolio summary cards
 - Portfolio insights
 - Sector allocation chart

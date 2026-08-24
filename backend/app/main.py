@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.dashboard.router import router as dashboard_router
+from app.news.router import router as news_router
 
 app = FastAPI(
     title="Stock Manager API",
@@ -22,3 +23,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(dashboard_router)
+app.include_router(news_router)

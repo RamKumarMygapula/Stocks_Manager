@@ -30,15 +30,9 @@ class Portfolio(BaseModel):
     """
 
     id: int = Field(..., description="Unique portfolio id")
-    symbol: str = Field(
-        ...,
-        description="Stock Symbol (Example: RELIANCE.NS)"
-    )
+    symbol: str = Field(..., description="Stock Symbol (Example: RELIANCE.NS)")
     buy_date: date
-    buy_price: float = Field(
-        ...,
-        gt=0,
-        description="Price at which one share was purchased"
+    buy_price: float = Field(..., gt=0,        description="Price at which one share was purchased"
     )
     quantity: int = Field(
         ...,

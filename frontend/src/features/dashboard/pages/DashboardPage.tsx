@@ -13,6 +13,7 @@ import PortfolioInsights from "../components/cards/PortfolioInsights";
 import SectorPieChart from "../components/charts/SectorPieChart";
 import StockDetailsDrawer from "../components/drawer/StockDetailsDrawer";
 import AddStockDialog from "../components/dialogs/AddStockDialog";
+import NewsFeed from "../components/news/NewsFeed";
 import { useDeleteStock } from "../hooks/useDeleteStock";
 import {
 
@@ -233,24 +234,7 @@ export default function DashboardPage() {
 
                 <Grid size={{ xs: 12, lg: 6 }}>
 
-                    <Paper
-                        sx={{
-                            p: 3,
-                            height: 380,
-                            borderRadius: 3
-                        }}
-                    >
-
-                        <Typography
-                            variant="h6"
-                            fontWeight={700}
-                        >
-
-                            Coming Soon
-
-                        </Typography>
-
-                    </Paper>
+                    <NewsFeed />
 
                 </Grid>
 
