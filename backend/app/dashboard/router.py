@@ -84,3 +84,18 @@ def delete_stock(portfolio_id: int):
     return {
         "message": "Deleted Successfully"
     }
+
+# ==========================================================
+# Stock Details
+# ==========================================================
+
+@router.get("/stock/{symbol}")
+def get_stock_details(symbol: str):
+    """
+    Detailed market and fundamental information
+    for one stock.
+    """
+
+    return DashboardService.get_stock_details(
+        symbol
+    )

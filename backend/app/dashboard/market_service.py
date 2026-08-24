@@ -262,6 +262,85 @@ class MarketService:
             )
 
             # ==================================================
+            # 52 Week High / Low
+            # ==================================================
+
+            week_52_high = safe_float(
+                info.get("fiftyTwoWeekHigh"),
+                None
+            )
+
+            week_52_low = safe_float(
+                info.get("fiftyTwoWeekLow"),
+                None
+            )
+
+            # ==================================================
+            # Volume
+            # ==================================================
+
+            volume = info.get("volume")
+
+            try:
+                volume = int(volume) if volume is not None else None
+            except (TypeError, ValueError):
+                volume = None
+
+            # ==================================================
+            # Fundamental Data
+            # ==================================================
+
+            revenue = safe_float(
+                info.get("totalRevenue"),
+                None
+            )
+
+            profit = safe_float(
+                info.get("netIncomeToCommon"),
+                None
+            )
+
+            eps = safe_float(
+                info.get("trailingEps"),
+                None
+            )
+
+            pe_ratio = safe_float(
+                info.get("trailingPE"),
+                None
+            )
+
+            pb_ratio = safe_float(
+                info.get("priceToBook"),
+                None
+            )
+
+            debt = safe_float(
+                info.get("totalDebt"),
+                None
+            )
+
+            debt_equity = safe_float(
+                info.get("debtToEquity"),
+                None
+            )
+
+            roe = safe_float(
+                info.get("returnOnEquity"),
+                None
+            )
+
+            roce = safe_float(
+                info.get("returnOnAssets"),
+                None
+            )
+
+            dividend_yield = safe_float(
+                info.get("dividendYield"),
+                None
+            )
+
+            # ==================================================
             # Log Result
             # ==================================================
 
@@ -312,6 +391,257 @@ class MarketService:
     # ======================================================
     # Multiple Stocks
     # ======================================================
+
+
+    @staticmethod
+    def get_stock_details(symbol: str) -> dict:
+        """
+        Fetch detailed market and fundamental information
+        for one stock.
+
+        Used by the Stock Details drawer.
+        """
+
+        try:
+            logger.info(
+                "Fetching detailed data for %s",
+                symbol
+            )
+
+            ticker = yf.Ticker(symbol)
+
+            fast_info = ticker.fast_info
+            info = ticker.info
+
+            # ==================================================
+            # Basic Information
+            # ==================================================
+
+            company_name = (
+                info.get("shortName")
+                or info.get("longName")
+                or symbol
+            )
+
+            sector = (
+                info.get("sector")
+                or "Unknown"
+            )
+
+            # ==================================================
+            # Market Data
+            # ==================================================
+
+            current_price = safe_float(
+                fast_info.get("lastPrice"),
+                None
+            )
+
+            if current_price is None:
+                current_price = safe_float(
+                    info.get("currentPrice"),
+                    None
+                )
+
+            previous_close = safe_float(
+                fast_info.get("previousClose"),
+                None
+            )
+
+            if previous_close is None:
+                previous_close = safe_float(
+                    info.get("previousClose"),
+                    None
+                )
+
+            today_change = None
+            today_change_percent = None
+
+            if (
+                current_price is not None
+                and previous_close is not None
+                and previous_close != 0
+            ):
+                today_change = (
+                    current_price -
+                    previous_close
+                )
+
+                today_change_percent = (
+                    today_change /
+                    previous_close
+                ) * 100
+
+            market_cap = safe_float(
+                fast_info.get("marketCap"),
+                None
+            )
+
+            if market_cap is None:
+                market_cap = safe_float(
+                    info.get("marketCap"),
+                    None
+                )
+
+            week_52_high = safe_float(
+                info.get("fiftyTwoWeekHigh"),
+                None
+            )
+
+            week_52_low = safe_float(
+                info.get("fiftyTwoWeekLow"),
+                None
+            )
+
+            volume = info.get("volume")
+
+            try:
+                volume = (
+                    int(volume)
+                    if volume is not None
+                    else None
+                )
+            except (TypeError, ValueError):
+                volume = None
+
+            # ==================================================
+            # Fundamental Data
+            # ==================================================
+
+            revenue = safe_float(
+                info.get("totalRevenue"),
+                None
+            )
+
+            profit = safe_float(
+                info.get("netIncomeToCommon"),
+                None
+            )
+
+            eps = safe_float(
+                info.get("trailingEps"),
+                None
+            )
+
+            pe_ratio = safe_float(
+                info.get("trailingPE"),
+                None
+            )
+
+            pb_ratio = safe_float(
+                info.get("priceToBook"),
+                None
+            )
+
+            book_value = safe_float(
+                info.get("bookValue"),
+                None
+            )
+
+            debt = safe_float(
+                info.get("totalDebt"),
+                None
+            )
+
+            debt_equity = safe_float(
+                info.get("debtToEquity"),
+                None
+            )
+
+            roe = safe_float(
+                info.get("returnOnEquity"),
+                None
+            )
+
+            # ROCE is deliberately left empty for now.
+            roce = None
+
+            dividend_yield = safe_float(
+                info.get("dividendYield"),
+                None
+            )
+
+            # ==================================================
+            # Final Response
+            # ==================================================
+
+            return {
+                "symbol": symbol,
+                "company_name": company_name,
+                "sector": sector,
+
+                "market": {
+                    "current_price": current_price,
+                    "previous_close": previous_close,
+                    "today_change": (
+                        round(today_change, 2)
+                        if today_change is not None
+                        else None
+                    ),
+                    "today_change_percent": (
+                        round(today_change_percent, 2)
+                        if today_change_percent is not None
+                        else None
+                    ),
+                    "week_52_high": week_52_high,
+                    "week_52_low": week_52_low,
+                    "volume": volume,
+                    "market_cap": market_cap,
+                },
+
+                "fundamentals": {
+                    "revenue": revenue,
+                    "profit": profit,
+                    "eps": eps,
+                    "pe_ratio": pe_ratio,
+                    "pb_ratio": pb_ratio,
+                    "book_value": book_value,
+                    "debt": debt,
+                    "debt_equity": debt_equity,
+                    "roe": roe,
+                    "roce": roce,
+                    "dividend_yield": dividend_yield,
+                }
+            }
+
+        except Exception as ex:
+
+            logger.exception(
+                "Failed to fetch detailed data for %s: %s",
+                symbol,
+                ex
+            )
+
+            return {
+                "symbol": symbol,
+                "company_name": symbol,
+                "sector": "Unknown",
+
+                "market": {
+                    "current_price": None,
+                    "previous_close": None,
+                    "today_change": None,
+                    "today_change_percent": None,
+                    "week_52_high": None,
+                    "week_52_low": None,
+                    "volume": None,
+                    "market_cap": None,
+                },
+
+                "fundamentals": {
+                    "revenue": None,
+                    "profit": None,
+                    "eps": None,
+                    "pe_ratio": None,
+                    "pb_ratio": None,
+                    "book_value": None,
+                    "debt": None,
+                    "debt_equity": None,
+                    "roe": None,
+                    "roce": None,
+                    "dividend_yield": None,
+                }
+            }
 
     @classmethod
     def get_multiple_stock_data(
