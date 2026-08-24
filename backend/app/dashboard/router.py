@@ -89,13 +89,24 @@ def delete_stock(portfolio_id: int):
 # Stock Details
 # ==========================================================
 
+
+
+# ==========================================================
+# Stock Details API
+# ==========================================================
+
 @router.get("/stock/{symbol}")
 def get_stock_details(symbol: str):
     """
-    Detailed market and fundamental information
-    for one stock.
+    Get detailed market and fundamental data
+    for a single stock.
     """
 
-    return DashboardService.get_stock_details(
-        symbol
-    )
+    try:
+        return DashboardService.get_stock_details(symbol)
+
+    except Exception as ex:
+        raise HTTPException(
+            status_code=404,
+            detail=str(ex)
+        )
