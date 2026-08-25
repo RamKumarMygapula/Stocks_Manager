@@ -397,10 +397,44 @@ class NewsService:
     @staticmethod
     def get_all_news() -> list[NewsArticle]:
         """
-        Return all currently stored news.
+        Return stored news.
+
+        Automatically refresh news when the stored articles
+        are older than 15 hours.
         """
 
-        return _load_news()
+        articles = _load_news()
+
+        # No stored news → fetch immediately
+        if not articles:
+            return NewsService.refresh_news()
+
+        # Find the latest fetch timestamp
+        fetched_times = [
+            article.fetched_at
+            for article in articles
+            if article.fetched_at is not None
+        ]
+
+        # If timestamps are unavailable, keep existing data
+        if not fetched_times:
+            return articles
+
+        latest_fetched_at = max(fetched_times)
+
+        # Make sure timestamp is timezone-aware
+        if latest_fetched_at.tzinfo is None:
+            latest_fetched_at = latest_fetched_at.replace(
+                tzinfo=timezone.utc
+            )
+
+        age = _utc_now() - latest_fetched_at
+
+        # Refresh only after 15 hours
+        if age.total_seconds() >= 15 * 60 * 60:
+            return NewsService.refresh_news()
+
+        return articles
 
     @staticmethod
     def refresh_news() -> list[NewsArticle]:
