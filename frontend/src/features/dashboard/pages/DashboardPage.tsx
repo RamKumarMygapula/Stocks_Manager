@@ -1,348 +1,281 @@
-import { useState } from "react";
-
 import {
     Box,
+    Grid,
     Paper,
-    Typography,
+    Typography
 } from "@mui/material";
+
+import { useState } from "react";
 
 import SummaryCards from "../components/cards/SummaryCards";
 import PortfolioTable from "../components/table/PortfolioTable";
 import PortfolioInsights from "../components/cards/PortfolioInsights";
 import SectorPieChart from "../components/charts/SectorPieChart";
-import NewsFeed from "../components/news/NewsFeed";
 import StockDetailsDrawer from "../components/drawer/StockDetailsDrawer";
+import AddStockDialog from "../components/dialogs/AddStockDialog";
+import NewsFeed from "../components/news/NewsFeed";
+import { useDeleteStock } from "../hooks/useDeleteStock";
+import {
 
-import { useDashboard } from "../hooks/useDashboard";
-import { usePortfolio } from "../hooks/usePortfolio";
+    IconButton
 
-import type { PortfolioStock } from "../types/portfolio";
+} from "@mui/material";
 
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 
-const DashboardPage = () => {
+import {
 
-    // ========================================================================
-    // Dashboard data
-    // ========================================================================
+    useContext
 
-    const {
-        data: dashboardData,
-        isLoading: dashboardLoading,
-        isError: dashboardError,
-    } = useDashboard();
+} from "react";
 
-    const {
-        data: portfolioData,
-        isLoading: portfolioLoading,
-    } = usePortfolio();
+import { ThemeModeContext } from "../../../app/ThemeContext";
+import type { DashboardStock } from "../types/dashboard";
 
+export default function DashboardPage() {
 
-    // ========================================================================
-    // Stock details drawer
-    // ========================================================================
+    // ==========================================================
+    // Drawer State
+    // ==========================================================
 
     const [selectedStock, setSelectedStock] =
-        useState<PortfolioStock | null>(null);
+        useState<DashboardStock | null>(null);
 
     const [drawerOpen, setDrawerOpen] =
         useState(false);
+    const themeMode = useContext(ThemeModeContext);
+    // ==========================================================
+    // Add / Edit Dialog
+    // ==========================================================
 
+    const [addOpen, setAddOpen] =
+        useState(false);
 
-    const handleView = (stock: PortfolioStock) => {
+    const [editingStock, setEditingStock] =
+        useState<DashboardStock | null>(null);
+
+    // ==========================================================
+    // View Stock
+    // ==========================================================
+
+    const handleViewStock = (
+        stock: DashboardStock
+    ) => {
+
         setSelectedStock(stock);
+
         setDrawerOpen(true);
+
     };
 
+    // ==========================================================
+    // Edit Stock
+    // ==========================================================
 
-    const handleCloseDrawer = () => {
-        setDrawerOpen(false);
-        setSelectedStock(null);
+    const handleEditStock = (
+        stock: DashboardStock
+    ) => {
+
+        setEditingStock(stock);
+
+        setAddOpen(true);
+
     };
 
+    // ==========================================================
+    // Delete Stock
+    // ==========================================================
+    const deleteMutation = useDeleteStock();
+    const handleDeleteStock = (
+        stock: DashboardStock
+    ) => {
 
-    // ========================================================================
-    // Loading
-    // ========================================================================
-
-    if (dashboardLoading || portfolioLoading) {
-        return (
-            <Box sx={{ p: 3 }}>
-                <Typography>
-                    Loading dashboard...
-                </Typography>
-            </Box>
+        const confirmed = window.confirm(
+            `Are you sure you want to delete ${stock.company_name}?`
         );
-    }
 
+        if (!confirmed) {
+            return;
+        }
 
-    // ========================================================================
-    // Error
-    // ========================================================================
+        deleteMutation.mutate(stock.id);
 
-    if (dashboardError) {
-        return (
-            <Box sx={{ p: 3 }}>
-                <Typography color="error">
-                    Unable to load dashboard data.
-                </Typography>
-            </Box>
-        );
-    }
-
-
-    // ========================================================================
-    // Dashboard
-    // ========================================================================
+    };
 
     return (
-        <Box
-            sx={{
-                width: "100%",
-                boxSizing: "border-box",
-                p: 3,
-            }}
-        >
 
-            {/* ============================================================= */}
-            {/* PAGE TITLE                                                      */}
-            {/* ============================================================= */}
+        <Box sx={{ p: 3 }}>
 
-            <Typography
-                variant="h4"
-                fontWeight={700}
-                sx={{
-                    mb: 3,
-                    color: "text.primary",
-                }}
-            >
-                Dashboard
-            </Typography>
-
-
-            {/* ============================================================= */}
-            {/* SUMMARY CARDS                                                   */}
-            {/* ============================================================= */}
+            {/* ========================================================== */}
+            {/* Dashboard Title */}
+            {/* ========================================================== */}
 
             <Box
+
                 sx={{
-                    width: "100%",
-                    mb: 3,
+
+                    display: "flex",
+
+                    justifyContent: "space-between",
+
+                    alignItems: "center",
+
+                    mb: 3
+
                 }}
+
             >
-                <SummaryCards
-                    data={dashboardData}
-                />
+
+                <Typography
+
+                    variant="h4"
+
+                    fontWeight={700}
+
+                >
+
+                    📈 Stock Manager Dashboard
+
+                </Typography>
+
+                <IconButton
+
+                    onClick={themeMode.toggleTheme}
+
+                >
+
+                    <DarkModeIcon />
+
+                </IconButton>
+
             </Box>
 
+            {/* ========================================================== */}
+            {/* Summary Cards */}
+            {/* ========================================================== */}
 
-            {/* ============================================================= */}
-            {/* PORTFOLIO + INSIGHTS                                            */}
-            {/* ============================================================= */}
+            <SummaryCards />
 
-            <Box
-                sx={{
-                    width: "100%",
-                    display: "flex",
-                    gap: 3,
-                    mb: 3,
+            {/* ========================================================== */}
+            {/* Portfolio + Insights */}
+            {/* ========================================================== */}
 
-                    flexDirection: {
-                        xs: "column",
-                        lg: "row",
-                    },
-
-                    alignItems: "stretch",
-                }}
+            <Grid
+                container
+                spacing={3}
+                sx={{ mt: 2, alignItems: "stretch" }}
             >
 
-                {/* --------------------------------------------------------- */}
-                {/* Portfolio                                                   */}
-                {/* --------------------------------------------------------- */}
+                <Grid size={{ xs: 12, lg: 8 }}>
 
-                <Box
-                    sx={{
-                        flex: {
-                            xs: "none",
-                            lg: "2 1 0",
-                        },
-
-                        width: {
-                            xs: "100%",
-                            lg: "auto",
-                        },
-
-                        minWidth: 0,
-
-                        height: 500,
-
-                        overflow: "hidden",
-                    }}
-                >
                     <PortfolioTable
-                        stocks={portfolioData ?? []}
-                        onView={handleView}
+
+                        onView={handleViewStock}
+
+                        onEdit={handleEditStock}
+
+                        onDelete={handleDeleteStock}
+
+                        onAdd={() => {
+
+                            setEditingStock(null);
+
+                            setAddOpen(true);
+
+                        }}
+
                     />
-                </Box>
 
+                </Grid>
 
-                {/* --------------------------------------------------------- */}
-                {/* Portfolio Insights                                          */}
-                {/* --------------------------------------------------------- */}
+                <Grid size={{ xs: 12, lg: 4 }}>
 
-                <Box
-                    sx={{
-                        flex: {
-                            xs: "none",
-                            lg: "1 1 0",
-                        },
-
-                        width: {
-                            xs: "100%",
-                            lg: "auto",
-                        },
-
-                        minWidth: 0,
-
-                        height: 500,
-
-                        overflow: "hidden",
-                    }}
-                >
                     <PortfolioInsights />
-                </Box>
 
-            </Box>
+                </Grid>
 
+            </Grid>
 
-            {/* ============================================================= */}
-            {/* SECTOR + NEWS                                                   */}
-            {/* ============================================================= */}
+            {/* ========================================================== */}
+            {/* Sector Allocation */}
+            {/* ========================================================== */}
 
-            <Box
-                sx={{
-                    width: "100%",
-                    display: "flex",
-                    gap: 3,
-
-                    flexDirection: {
-                        xs: "column",
-                        lg: "row",
-                    },
-
-                    alignItems: "stretch",
-                }}
+            <Grid
+                container
+                spacing={3}
+                sx={{ mt: 1 }}
             >
 
-                {/* --------------------------------------------------------- */}
-                {/* Sector Allocation                                           */}
-                {/* --------------------------------------------------------- */}
-
-                <Box
-                    sx={{
-                        flex: {
-                            xs: "none",
-                            lg: "1 1 0",
-                        },
-
-                        width: {
-                            xs: "100%",
-                            lg: "auto",
-                        },
-
-                        minWidth: 0,
-                    }}
-                >
+                <Grid size={{ xs: 12, lg: 6 }}>
 
                     <Paper
-                        elevation={0}
                         sx={{
-                            width: "100%",
-                            height: 340,
-
                             p: 3,
-
-                            borderRadius: 3,
-
-                            display: "flex",
-                            flexDirection: "column",
-
-                            overflow: "hidden",
-
-                            bgcolor: "background.paper",
+                            height: 380,
+                            borderRadius: 3
                         }}
                     >
 
                         <Typography
                             variant="h6"
-                            fontWeight={600}
-                            sx={{
-                                mb: 1,
-                                color: "text.primary",
-                            }}
+                            fontWeight={700}
+                            mb={2}
                         >
+
                             Sector Allocation
+
                         </Typography>
 
-                        <Box
-                            sx={{
-                                flex: 1,
-                                minHeight: 0,
-
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <SectorPieChart />
-                        </Box>
+                        <SectorPieChart />
 
                     </Paper>
 
-                </Box>
+                </Grid>
 
+                <Grid size={{ xs: 12, lg: 6 }}>
 
-                {/* --------------------------------------------------------- */}
-                {/* News Feed                                                    */}
-                {/* --------------------------------------------------------- */}
-
-                <Box
-                    sx={{
-                        flex: {
-                            xs: "none",
-                            lg: "2 1 0",
-                        },
-
-                        width: {
-                            xs: "100%",
-                            lg: "auto",
-                        },
-
-                        minWidth: 0,
-
-                        height: 340,
-
-                        overflow: "hidden",
-                    }}
-                >
                     <NewsFeed />
-                </Box>
 
-            </Box>
+                </Grid>
 
+            </Grid>
 
-            {/* ============================================================= */}
-            {/* STOCK DETAILS DRAWER                                            */}
-            {/* ============================================================= */}
+            {/* ========================================================== */}
+            {/* Stock Details Drawer */}
+            {/* ========================================================== */}
 
             <StockDetailsDrawer
+
                 open={drawerOpen}
+
                 stock={selectedStock}
-                onClose={handleCloseDrawer}
+
+                onClose={() => setDrawerOpen(false)}
+
+            />
+
+            {/* ========================================================== */}
+            {/* Add / Edit Dialog */}
+            {/* ========================================================== */}
+
+            <AddStockDialog
+
+                open={addOpen}
+
+                stock={editingStock}
+
+                onClose={() => {
+
+                    setAddOpen(false);
+
+                    setEditingStock(null);
+
+                }}
+
             />
 
         </Box>
+
     );
-};
 
-
-export default DashboardPage;
+}

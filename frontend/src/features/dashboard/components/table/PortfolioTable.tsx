@@ -120,7 +120,7 @@ export default function PortfolioTable({
                  * Gives the DataGrid a fixed area so that
                  * the portfolio itself can scroll.
                  */
-                height: 500,
+                height: 550,
 
                 display: "flex",
 
@@ -191,41 +191,56 @@ export default function PortfolioTable({
             >
 
                 <DataGrid
-
                     rows={sortedData}
 
                     columns={portfolioColumns(
-
                         onView,
-
                         onEdit,
-
                         onDelete
-
                     )}
 
+                    hideFooter
+
                     /*
-                     * No pagination.
-                     *
-                     * All holdings are displayed and the
-                     * DataGrid scrolls internally.
-                     */
+                    * No pagination.
+                    *
+                    * All holdings are displayed and the
+                    * DataGrid scrolls internally.
+                    */
                     pagination={false}
 
                     disableRowSelectionOnClick
 
                     sx={{
-
                         border: "none",
 
+                        /* =====================================================
+                        Company column stays visible while scrolling
+                        horizontally
+                        ===================================================== */
+
+                        "& .MuiDataGrid-columnHeader[data-field='company_name']": {
+                            position: "sticky",
+                            left: 0,
+                            zIndex: 5,
+                            backgroundColor: "background.paper"
+                        },
+
+                        "& .MuiDataGrid-cell[data-field='company_name']": {
+                            position: "sticky",
+                            left: 0,
+                            zIndex: 4,
+                            backgroundColor: "background.paper"
+                        },
+
+                        /* =====================================================
+                        Keep vertical scrolling inside the portfolio
+                        ===================================================== */
+
                         "& .MuiDataGrid-virtualScroller": {
-
                             overflowY: "auto"
-
                         }
-
                     }}
-
                 />
 
             </Box>
