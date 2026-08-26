@@ -11,6 +11,28 @@ import type { GridColDef } from "@mui/x-data-grid";
 
 
 // =============================================================================
+// Helpers
+// =============================================================================
+
+const formatCurrency = (value: unknown) => {
+
+    const number = Number(value ?? 0);
+
+    return `₹${number.toFixed(2)}`;
+
+};
+
+
+const formatPercent = (value: unknown) => {
+
+    const number = Number(value ?? 0);
+
+    return `${number.toFixed(2)}%`;
+
+};
+
+
+// =============================================================================
 // Portfolio Columns
 // =============================================================================
 
@@ -24,117 +46,229 @@ export const portfolioColumns = (
 
 ): GridColDef[] => [
 
+    // =========================================================================
+    // Company
+    // =========================================================================
+
     {
         field: "company_name",
+
         headerName: "Company",
+
         flex: 2,
+
         minWidth: 220
     },
 
 
+    // =========================================================================
+    // Quantity
+    // =========================================================================
+
     {
         field: "quantity",
+
         headerName: "Qty",
-        width: 90,
+
+        width: 80,
+
         type: "number"
     },
 
 
+    // =========================================================================
+    // Buy Price
+    // =========================================================================
+
     {
         field: "buy_price",
+
         headerName: "Buy Price",
+
         width: 120,
 
         valueFormatter: (value) =>
-            `₹${Number(value).toFixed(2)}`
+            formatCurrency(value)
     },
 
+
+    // =========================================================================
+    // Current Price
+    // =========================================================================
 
     {
         field: "current_price",
+
         headerName: "Current",
+
         width: 120,
 
         valueFormatter: (value) =>
-            `₹${Number(value).toFixed(2)}`
+            formatCurrency(value)
     },
 
+
+    // =========================================================================
+    // Today's P/L
+    // =========================================================================
+
+    {
+        field: "one_day_profit",
+
+        headerName: "Today",
+
+        width: 130,
+
+        renderCell: (params) => {
+
+            const value = Number(params.value ?? 0);
+
+            return (
+
+                <span
+                    style={{
+                        color:
+                            value >= 0
+                                ? "green"
+                                : "red",
+
+                        fontWeight: 600
+                    }}
+                >
+
+                    {value >= 0 ? "+" : ""}
+
+                    {formatCurrency(value)}
+
+                </span>
+
+            );
+
+        }
+    },
+
+
+    // =========================================================================
+    // Invested
+    // =========================================================================
 
     {
         field: "invested_amount",
+
         headerName: "Invested",
+
         width: 130,
 
         valueFormatter: (value) =>
-            `₹${Number(value).toFixed(2)}`
+            formatCurrency(value)
     },
 
+
+    // =========================================================================
+    // Current Value
+    // =========================================================================
 
     {
         field: "current_value",
+
         headerName: "Current Value",
-        width: 150,
+
+        width: 145,
 
         valueFormatter: (value) =>
-            `₹${Number(value).toFixed(2)}`
+            formatCurrency(value)
     },
 
+
+    // =========================================================================
+    // Overall Profit / Loss
+    // =========================================================================
 
     {
         field: "profit_loss",
+
         headerName: "Profit / Loss",
-        width: 150,
 
-        renderCell: (params) => (
+        width: 140,
 
-            <span
-                style={{
-                    color:
-                        params.value >= 0
-                            ? "green"
-                            : "red",
+        renderCell: (params) => {
 
-                    fontWeight: 600
-                }}
-            >
+            const value = Number(params.value ?? 0);
 
-                ₹{Number(params.value).toFixed(2)}
+            return (
 
-            </span>
+                <span
+                    style={{
+                        color:
+                            value >= 0
+                                ? "green"
+                                : "red",
 
-        )
+                        fontWeight: 600
+                    }}
+                >
+
+                    {value >= 0 ? "+" : ""}
+
+                    {formatCurrency(value)}
+
+                </span>
+
+            );
+
+        }
     },
 
+
+    // =========================================================================
+    // Overall Return %
+    // =========================================================================
 
     {
         field: "return_percent",
+
         headerName: "Return %",
+
         width: 110,
 
-        renderCell: (params) => (
+        renderCell: (params) => {
 
-            <span
-                style={{
-                    color:
-                        params.value >= 0
-                            ? "green"
-                            : "red",
+            const value = Number(params.value ?? 0);
 
-                    fontWeight: 600
-                }}
-            >
+            return (
 
-                {Number(params.value).toFixed(2)}%
+                <span
+                    style={{
+                        color:
+                            value >= 0
+                                ? "green"
+                                : "red",
 
-            </span>
+                        fontWeight: 600
+                    }}
+                >
 
-        )
+                    {value >= 0 ? "+" : ""}
+
+                    {formatPercent(value)}
+
+                </span>
+
+            );
+
+        }
     },
 
 
+    // =========================================================================
+    // Days Held
+    // =========================================================================
+
     {
         field: "days_invested",
+
         headerName: "Days Held",
+
         width: 110,
 
         type: "number"
@@ -155,7 +289,6 @@ export const portfolioColumns = (
         sortable: false,
 
         filterable: false,
-
 
         renderCell: (params) => (
 
@@ -182,7 +315,6 @@ export const portfolioColumns = (
                 </Tooltip>
 
 
-
                 <Tooltip title="Edit">
 
                     <IconButton
@@ -202,7 +334,6 @@ export const portfolioColumns = (
                     </IconButton>
 
                 </Tooltip>
-
 
 
                 <Tooltip title="Delete">
@@ -226,7 +357,6 @@ export const portfolioColumns = (
                     </IconButton>
 
                 </Tooltip>
-
 
             </>
 

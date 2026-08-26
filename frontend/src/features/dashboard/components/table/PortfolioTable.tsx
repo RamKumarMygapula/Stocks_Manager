@@ -51,6 +51,7 @@ export default function PortfolioTable({
 
     } = usePortfolio();
 
+
     if (isLoading) {
 
         return (
@@ -73,6 +74,7 @@ export default function PortfolioTable({
 
     }
 
+
     if (error) {
 
         return (
@@ -87,37 +89,84 @@ export default function PortfolioTable({
 
     }
 
+
+    /*
+     * Sort by today's return.
+     *
+     * Highest positive return first.
+     */
+    const sortedData = [...(data ?? [])].sort(
+
+        (a, b) =>
+
+            (b.today_change_percent ?? 0) -
+            (a.today_change_percent ?? 0)
+
+    );
+
+
     return (
 
         <Paper
+
             sx={{
+
                 p: 2,
-                borderRadius: 3
+
+                borderRadius: 3,
+
+                /*
+                 * Important:
+                 * Gives the DataGrid a fixed area so that
+                 * the portfolio itself can scroll.
+                 */
+                height: 550,
+
+                display: "flex",
+
+                flexDirection: "column"
+
             }}
+
         >
 
             <Box
+
                 sx={{
+
                     display: "flex",
+
                     justifyContent: "space-between",
+
                     alignItems: "center",
+
                     mb: 2
+
                 }}
+
             >
 
                 <Typography
+
                     variant="h5"
+
                     fontWeight={700}
+
                 >
 
                     Portfolio
 
                 </Typography>
 
+
                 <Button
+
                     variant="contained"
+
                     startIcon={<AddIcon />}
+
                     onClick={onAdd}
+
                 >
 
                     Add Stock
@@ -126,43 +175,75 @@ export default function PortfolioTable({
 
             </Box>
 
-            <DataGrid
 
-                rows={data ?? []}
+            <Box
 
-                columns={portfolioColumns(
+                sx={{
 
-                    onView,
+                    flex: 1,
 
-                    onEdit,
+                    minHeight: 0,
 
-                    onDelete
-
-                )}
-
-                autoHeight
-
-                pageSizeOptions={[5, 10, 20]}
-
-                initialState={{
-
-                    pagination: {
-
-                        paginationModel: {
-
-                            pageSize: 5,
-
-                            page: 0
-
-                        }
-
-                    }
+                    width: "100%"
 
                 }}
 
-                disableRowSelectionOnClick
+            >
 
-            />
+                <DataGrid
+                    rows={sortedData}
+
+                    columns={portfolioColumns(
+                        onView,
+                        onEdit,
+                        onDelete
+                    )}
+
+                    hideFooter
+
+                    /*
+                    * No pagination.
+                    *
+                    * All holdings are displayed and the
+                    * DataGrid scrolls internally.
+                    */
+                    pagination={false}
+
+                    disableRowSelectionOnClick
+
+                    sx={{
+                        border: "none",
+
+                        /* =====================================================
+                        Company column stays visible while scrolling
+                        horizontally
+                        ===================================================== */
+
+                        "& .MuiDataGrid-columnHeader[data-field='company_name']": {
+                            position: "sticky",
+                            left: 0,
+                            zIndex: 5,
+                            backgroundColor: "background.paper"
+                        },
+
+                        "& .MuiDataGrid-cell[data-field='company_name']": {
+                            position: "sticky",
+                            left: 0,
+                            zIndex: 4,
+                            backgroundColor: "background.paper"
+                        },
+
+                        /* =====================================================
+                        Keep vertical scrolling inside the portfolio
+                        ===================================================== */
+
+                        "& .MuiDataGrid-virtualScroller": {
+                            overflowY: "auto"
+                        }
+                    }}
+                />
+
+            </Box>
 
         </Paper>
 

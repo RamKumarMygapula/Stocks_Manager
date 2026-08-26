@@ -497,3 +497,19 @@ class DashboardService:
         dashboard = DashboardService.get_dashboard()
 
         return dashboard.summary
+
+
+        # ==========================================================
+    # Stock Details
+    # ==========================================================
+
+    @staticmethod
+    def get_stock_details(symbol: str):
+        """
+        Return detailed market and fundamental information
+        for one stock.
+        """
+
+        return MarketService.get_stock_details(
+            symbol
+        )

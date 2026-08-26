@@ -30,15 +30,9 @@ class Portfolio(BaseModel):
     """
 
     id: int = Field(..., description="Unique portfolio id")
-    symbol: str = Field(
-        ...,
-        description="Stock Symbol (Example: RELIANCE.NS)"
-    )
+    symbol: str = Field(..., description="Stock Symbol (Example: RELIANCE.NS)")
     buy_date: date
-    buy_price: float = Field(
-        ...,
-        gt=0,
-        description="Price at which one share was purchased"
+    buy_price: float = Field(..., gt=0,        description="Price at which one share was purchased"
     )
     quantity: int = Field(
         ...,
@@ -86,6 +80,69 @@ class LiveStockData(BaseModel):
     market_cap: Optional[float] = None
     sector: Optional[str] = None
     book_value: Optional[float] = None
+
+# ==========================================================
+# Stock Details
+# ==========================================================
+
+class StockMarketDetails(BaseModel):
+    """
+    Current market information for a stock.
+    """
+
+    current_price: Optional[float] = None
+    previous_close: Optional[float] = None
+    today_change: Optional[float] = None
+    today_change_percent: Optional[float] = None
+
+    week_52_high: Optional[float] = None
+    week_52_low: Optional[float] = None
+
+    volume: Optional[int] = None
+    market_cap: Optional[float] = None
+
+
+class StockFundamentalDetails(BaseModel):
+    """
+    Fundamental information for a stock.
+    """
+
+    revenue: Optional[float] = None
+    profit: Optional[float] = None
+    eps: Optional[float] = None
+
+    pe_ratio: Optional[float] = None
+    pb_ratio: Optional[float] = None
+
+    book_value: Optional[float] = None
+
+    debt: Optional[float] = None
+    debt_equity: Optional[float] = None
+
+    roe: Optional[float] = None
+    roce: Optional[float] = None
+
+    dividend_yield: Optional[float] = None
+
+
+class StockDetails(BaseModel):
+    """
+    Complete details for one stock.
+    """
+
+    symbol: str
+    company_name: Optional[str] = None
+    sector: Optional[str] = None
+
+    market: StockMarketDetails
+    fundamentals: StockFundamentalDetails
+
+class StockDetailsResponse(BaseModel):
+    """
+    API response for the Stock Details drawer.
+    """
+
+    stock: StockDetails
 
 
 # ==========================================================

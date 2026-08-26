@@ -32,3 +32,30 @@ export async function getDashboard(): Promise<DashboardResponse> {
     return response.data;
 
 }
+
+// =============================================================================
+// Stock Details
+// =============================================================================
+
+export async function getStockDetails(symbol: string) {
+    try {
+        const response = await api.get(
+            `/dashboard/stock/${encodeURIComponent(symbol)}`
+        );
+
+        console.log("AXIOS STOCK DETAILS RESPONSE:", response);
+        console.log(
+            "AXIOS STOCK DETAILS DATA:",
+            response.data
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error(
+            "AXIOS STOCK DETAILS ERROR:",
+            error
+        );
+
+        throw error;
+    }
+}

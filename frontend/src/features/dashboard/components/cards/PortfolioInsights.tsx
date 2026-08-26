@@ -261,10 +261,10 @@ export default function PortfolioInsights() {
         >
 
             <Typography
-                variant="h5"
-                fontWeight={700}
+                variant="h6"
+                fontWeight={600}
                 sx={{
-                    color: "#1E293B",
+                    color: "text.primary",
                     letterSpacing: 0.3,
                     mb: 2.5
                 }}
