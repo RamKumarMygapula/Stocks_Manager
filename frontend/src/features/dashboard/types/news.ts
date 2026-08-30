@@ -9,6 +9,10 @@ export interface NewsArticle {
 
   query: string;
   title: string;
+
+  sentiment?: "positive" | "negative" | "neutral";
+  sentiment_score?: number;
+  
   source: string | null;
 
   published_at: string | null;
