@@ -23,6 +23,7 @@ from typing import Optional
 from gnews import GNews
 from app.news.schemas import NewsArticle
 from app.dashboard.service import DashboardService
+from app.news.sentiment import analyze_sentiment
 
 
 # ==========================================================
@@ -152,7 +153,7 @@ def _normalize_article(article: dict,category: str,symbol: Optional[str] = None,
     if not _is_relevant(title=title,query=query,category=category,):
         return None
     article_id = _create_article_id(title=title,source=source,published_at=published_at,)
-
+    sentiment, sentiment_score = analyze_sentiment(title)
     return NewsArticle(
         article_id=article_id,
         category=category,
@@ -160,6 +161,8 @@ def _normalize_article(article: dict,category: str,symbol: Optional[str] = None,
         sector=sector,
         query=query,
         title=title,
+        sentiment=sentiment,
+        sentiment_score=sentiment_score,
         source=source,
         published_at=published_at,
         google_news_url=article.get("url"),
@@ -379,10 +382,29 @@ def _load_news() -> list[NewsArticle]:
 
         return []
 
-    return [
-        NewsArticle(**item)
-        for item in raw_data
-    ]
+    articles = []
+
+    for item in raw_data:
+
+        # ----------------------------------------------------------
+        # Analyze sentiment for older articles that do not yet
+        # have sentiment information.
+        # ----------------------------------------------------------
+
+        if not item.get("sentiment"):
+
+            sentiment, sentiment_score = analyze_sentiment(
+                item.get("title", "")
+            )
+
+            item["sentiment"] = sentiment
+            item["sentiment_score"] = sentiment_score
+
+        articles.append(
+            NewsArticle(**item)
+        )
+
+    return articles
 
 
 # ==========================================================

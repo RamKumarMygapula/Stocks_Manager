@@ -29,10 +29,13 @@ class NewsArticle(BaseModel):
     # Actual query sent to GNews
     query: str
     title: str
+    sentiment: str = "neutral"
+    sentiment_score: float = 0.0
     source: Optional[str] = None
     published_at: Optional[datetime] = None
     google_news_url: Optional[str] = None
     fetched_at: datetime
+    
 
 
 class NewsResponse(BaseModel):
