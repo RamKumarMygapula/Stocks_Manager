@@ -18,6 +18,7 @@ import {
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import CircleIcon from "@mui/icons-material/Circle";
 
 import { useNews } from "../../hooks/useNews";
 
@@ -75,6 +76,25 @@ const formatPublishedTime = (
         minute: "2-digit",
     });
 };
+    const getSentimentColor = (
+        sentiment?: string
+    ) => {
+
+        switch (sentiment) {
+
+            case "positive":
+                return "success.main";
+
+            case "negative":
+                return "error.main";
+
+            case "neutral":
+            default:
+                return "warning.main";
+
+        }
+
+    };        
 
 
 /* ============================================================
@@ -744,33 +764,66 @@ const NewsFeed = () => {
 
                                         </Box>
 
+                                        {/* SENTIMENT + INFO BUTTON */}
 
-                                        {/* INFO BUTTON */}
-
-                                        <Tooltip
-                                            title="More information"
+                                        <Stack
+                                            direction="row"
+                                            alignItems="center"
+                                            spacing={0.25}
+                                            sx={{
+                                                flexShrink: 0,
+                                            }}
                                         >
 
-                                            <IconButton
-                                                size="small"
-                                                onClick={(event) =>
-                                                    handleInfoClick(
-                                                        event,
-                                                        article
-                                                    )
+                                            {/* SENTIMENT */}
+
+                                            <Tooltip
+                                                title={
+                                                    article.sentiment === "positive"
+                                                        ? "Positive news"
+                                                        : article.sentiment === "negative"
+                                                            ? "Negative news"
+                                                            : "Neutral / informational update"
                                                 }
-                                                sx={{
-                                                    flexShrink: 0,
-                                                }}
                                             >
 
-                                                <InfoOutlinedIcon
-                                                    fontSize="small"
+                                                <CircleIcon
+                                                    sx={{
+                                                        fontSize: 10,
+                                                        color: getSentimentColor(
+                                                            article.sentiment
+                                                        ),
+                                                    }}
                                                 />
 
-                                            </IconButton>
+                                            </Tooltip>
 
-                                        </Tooltip>
+
+                                            {/* INFO */}
+
+                                            <Tooltip
+                                                title="More information"
+                                            >
+
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={(event) =>
+                                                        handleInfoClick(
+                                                            event,
+                                                            article
+                                                        )
+                                                    }
+                                                >
+
+                                                    <InfoOutlinedIcon
+                                                        fontSize="small"
+                                                    />
+
+                                                </IconButton>
+
+                                            </Tooltip>
+
+                                        </Stack>
 
                                     </Stack>
 
