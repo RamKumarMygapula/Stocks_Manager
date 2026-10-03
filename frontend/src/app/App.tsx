@@ -6,7 +6,7 @@ import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import AnalysisPage from "../features/analysis/pages/AnalysisPage";
 import PredictionPage from "../features/prediction/pages/PredictionPage";
 import IpoPage from "../features/ipo/pages/IpoPage";
-import LogsPage from "../features/logs/pages/LogsPage";
+//import LogsPage from "../features/logs/pages/LogsPage";
 
 export default function App() {
 
