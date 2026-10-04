@@ -1,0 +1,22 @@
+{
+    "currency": "INR",
+    "dayHigh": 183.52000427246094,
+    "dayLow": 181.1999969482422,
+    "exchange": "NSI",
+    "fiftyDayAverage": 197.05060089111328,
+    "lastPrice": 182.6699981689453,
+    "lastVolume": 16117953,
+    "marketCap": 2278232380447.405,
+    "open": 183.41000366210938,
+    "previousClose": 184.1999969482422,
+    "quoteType": "EQUITY",
+    "regularMarketPreviousClose": 184.22999572753906,
+    "shares": 12471847612,
+    "tenDayAverageVolume": 21606756,
+    "threeMonthAverageVolume": 27917249,
+    "timezone": "Asia/Kolkata",
+    "twoHundredDayAverage": 191.3153003692627,
+    "yearChange": 0.1439754919067639,
+    "yearHigh": 224.39999389648438,
+    "yearLow": 152.50999450683594
+}
