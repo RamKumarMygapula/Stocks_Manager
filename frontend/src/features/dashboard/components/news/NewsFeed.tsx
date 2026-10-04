@@ -764,66 +764,66 @@ const NewsFeed = () => {
 
                                         </Box>
 
-                                        {/* SENTIMENT + INFO BUTTON */}
+                                    {/* SENTIMENT + INFO BUTTON */}
 
-                                        <Stack
-                                            direction="row"
-                                            alignItems="center"
-                                            spacing={0.25}
-                                            sx={{
-                                                flexShrink: 0,
-                                            }}
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        spacing={0.25}
+                                        sx={{
+                                            flexShrink: 0,
+                                        }}
+                                    >
+
+                                        {/* SENTIMENT */}
+
+                                        <Tooltip
+                                            title={
+                                                article.sentiment === "positive"
+                                                    ? "Positive news"
+                                                    : article.sentiment === "negative"
+                                                        ? "Negative news"
+                                                        : "Neutral / informational update"
+                                            }
                                         >
 
-                                            {/* SENTIMENT */}
+                                            <CircleIcon
+                                                sx={{
+                                                    fontSize: 10,
+                                                    color: getSentimentColor(
+                                                        article.sentiment
+                                                    ),
+                                                }}
+                                            />
 
-                                            <Tooltip
-                                                title={
-                                                    article.sentiment === "positive"
-                                                        ? "Positive news"
-                                                        : article.sentiment === "negative"
-                                                            ? "Negative news"
-                                                            : "Neutral / informational update"
+                                        </Tooltip>
+
+
+                                        {/* INFO */}
+
+                                        <Tooltip
+                                            title="More information"
+                                        >
+
+                                            <IconButton
+                                                size="small"
+                                                onClick={(event) =>
+                                                    handleInfoClick(
+                                                        event,
+                                                        article
+                                                    )
                                                 }
                                             >
 
-                                                <CircleIcon
-                                                    sx={{
-                                                        fontSize: 10,
-                                                        color: getSentimentColor(
-                                                            article.sentiment
-                                                        ),
-                                                    }}
+                                                <InfoOutlinedIcon
+                                                    fontSize="small"
                                                 />
 
-                                            </Tooltip>
+                                            </IconButton>
 
+                                        </Tooltip>
 
-                                            {/* INFO */}
-
-                                            <Tooltip
-                                                title="More information"
-                                            >
-
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={(event) =>
-                                                        handleInfoClick(
-                                                            event,
-                                                            article
-                                                        )
-                                                    }
-                                                >
-
-                                                    <InfoOutlinedIcon
-                                                        fontSize="small"
-                                                    />
-
-                                                </IconButton>
-
-                                            </Tooltip>
-
-                                        </Stack>
+                                    </Stack>
 
                                     </Stack>
 
